@@ -1,0 +1,22 @@
+import {readFileSync} from 'node:fs';
+import {chromium} from '@playwright/test';
+import assert from 'node:assert/strict';
+import * as XLSX from 'xlsx';
+const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
+const page=await browser.newPage({viewport:{width:1440,height:1100}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto('http://127.0.0.1:5173');await page.getByText('Synthetic classroom data',{exact:true}).waitFor();
+assert.equal(await page.locator('tbody tr').count(),35);
+await page.screenshot({path:'/workspace/dashboard-preview.png',fullPage:true});
+await page.locator('#privacyFilter').selectOption('Highly concerned');assert.equal(await page.locator('tbody tr').count(),7);assert.match(await page.locator('.filter-status').innerText(),/7 of 35/);
+await page.locator('#reset').click();await page.locator('[data-section="preference"][data-category="Use both"]').click();assert.equal(await page.locator('tbody tr').count(),11);
+await page.locator('#reset').click();await page.locator('[data-section="task"][data-category="Coding & technical tools"]').click();assert.ok(await page.locator('tbody tr').count()>0);assert.match(await page.locator('.filter-status').innerText(),/Coding/);
+await page.locator('#reset').click();await page.locator('#search').fill('zzzzzz');assert.match(await page.locator('tbody').innerText(),/No responses match/);assert.match(await page.locator('.stat').first().innerText(),/0/);await page.locator('#reset').click();
+await page.locator('#rules summary').click();await page.locator('textarea[data-rule-section="task"][data-rule-name="Coding & technical tools"]').fill('zzzzzz');await page.locator('#applyRules').click();assert.match(await page.locator('[data-category="Coding & technical tools"]').innerText(),/0\s+0%/);await page.locator('#rules summary').click();await page.locator('#defaultRules').click();
+await page.locator('#file').setInputFiles({name:'bad.txt',mimeType:'text/plain',buffer:Buffer.from('bad')});assert.match(await page.locator('.error').innerText(),/Please choose/);
+const original=XLSX.read(readFileSync('public/AI_Sovereignty_35_Synthetic_Responses.xlsx'),{type:'buffer'});const grid=XLSX.utils.sheet_to_json(original.Sheets.Sheet1,{header:1,defval:''});const columns=[20,17,14,11,8,0];const replacement=XLSX.utils.book_new();XLSX.utils.book_append_sheet(replacement,XLSX.utils.aoa_to_sheet([['Bad header'],['example']]),'Admin');XLSX.utils.book_append_sheet(replacement,XLSX.utils.aoa_to_sheet(grid.slice(0,4).map(r=>columns.map(c=>r[c]))),'Survey');
+await page.locator('#file').setInputFiles({name:'replacement.xlsx',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',buffer:XLSX.write(replacement,{type:'buffer',bookType:'xlsx'})});await page.getByText('replacement.xlsx',{exact:true}).waitFor();assert.match(await page.locator('.error').innerText(),/five survey/);await page.locator('#sheet').selectOption('Survey');assert.equal(await page.locator('tbody tr').count(),3);
+await page.locator('#demo').click();await page.getByText('AI_Sovereignty_35_Synthetic_Responses.xlsx',{exact:true}).waitFor();assert.equal(await page.locator('tbody tr').count(),35);
+// Real drag/drop with browser File and DataTransfer.
+const encoded=XLSX.write(replacement,{type:'base64',bookType:'xlsx'});
+await page.evaluate(base64=>{const bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));const dt=new DataTransfer();dt.items.add(new File([bytes],'dropped.xlsx'));document.querySelector('#dropzone').dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dt}));},encoded);await page.getByText('dropped.xlsx',{exact:true}).waitFor();await page.locator('#sheet').selectOption('Survey');assert.equal(await page.locator('tbody tr').count(),3);
+await page.setViewportSize({width:390,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));assert.deepEqual(errors,[]);await browser.close();console.log('Browser checks passed: demo, filters, chart evidence, search/empty, rules, upload, reordered/multiple sheets, drag/drop, mobile, no runtime errors.');
