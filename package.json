@@ -6,7 +6,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "test": "node --test",
-    "build:pages": "vite build --base=/AI-Sovereignty-dashboard/ --outDir docs"
+    "build:pages": "vite build --base=./ --outDir ../docs"
   },
   "dependencies": {
     "vite": "^7.1.0",

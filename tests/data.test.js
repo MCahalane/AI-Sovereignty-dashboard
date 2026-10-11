@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import * as XLSX from 'xlsx';
-import {parseSheet,readWorkbook,defaultRules,themes,selectRows,privacyOrder,preferenceOrder} from '../src/data.js';
+import {parseSheet,readWorkbook,defaultRules,themes,selectRows,privacyOrder,preferenceOrder} from '../app/src/data.js';
 const w=readWorkbook(readFileSync('public/AI_Sovereignty_35_Synthetic_Responses.xlsx'));
 const {rows,synthetic}=parseSheet(w,'Sheet1');
 test('Actual demo has 35 complete synthetic responses; admin columns excluded',()=>{assert.equal(rows.length,35);assert.equal(synthetic,true);for(const r of rows)for(const k of ['definition','task','privacy','preference','business'])assert.ok(r[k]);assert.equal(rows[0].definition.startsWith('A country'),true);});

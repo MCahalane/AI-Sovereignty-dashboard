@@ -31,4 +31,4 @@ Browser checks require a running dev server on port 5173 and Chromium at `/usr/b
 
 ## GitHub Pages
 
-A prebuilt website is included in `docs/`. In the GitHub repository, open **Settings → Pages**, select **Deploy from a branch**, choose **main** and **/docs**, then click **Save**. GitHub will display the live address when deployment finishes. To refresh the published build after editing source, run `npm run build:pages`, then commit and push the updated `docs/` files.
+A prebuilt website is included in `docs/`. The repository root redirects to it, so both root and /docs publication work. In the GitHub repository, open **Settings → Pages**, select **Deploy from a branch**, choose **main** and **/docs**, then click **Save**. GitHub will display the live address when deployment finishes. To refresh the published build after editing source, run `npm run build:pages`, then commit and push the updated `docs/` files.
