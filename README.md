@@ -32,3 +32,7 @@ Browser checks require a running dev server on port 5173 and Chromium at `/usr/b
 ## GitHub Pages
 
 A prebuilt website is included in `docs/`. The repository root redirects to it, so both root and /docs publication work. In the GitHub repository, open **Settings → Pages**, select **Deploy from a branch**, choose **main** and **/docs**, then click **Save**. GitHub will display the live address when deployment finishes. To refresh the published build after editing source, run `npm run build:pages`, then commit and push the updated `docs/` files.
+
+## Recreate this dashboard in class
+
+Use [CLASSROOM_DASHBOARD_PROMPT.md](CLASSROOM_DASHBOARD_PROMPT.md) with the demonstration workbook. The prompt specifies the visual layout, section explanations, source tracing, theme walkthrough, controls and GitHub deployment. Replace the repository placeholder with each student’s own repository.
